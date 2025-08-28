@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Ultimate Graduation Card</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;}
+body{height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;font-family:'Roboto',sans-serif;background:#111;position:relative;}
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:linear-gradient(120deg,#ffecd2,#fcb69f,#ffecd2);background-size:400% 400%;animation:bgAnimate 20s ease infinite;}
+@keyframes bgAnimate{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%;}}
+
+.layer{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;transition:opacity 0.8s ease;flex-direction:column;}
+.layer.hidden{opacity:0;pointer-events:none;}
+
+.card{
+  position:relative;
+  background:linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15));
+  backdrop-filter:blur(30px);
+  border-radius:30px;
+  padding:80px 60px;
+  max-width:900px;
+  width:90%;
+  text-align:center;
+  box-shadow:0 35px 80px rgba(0,0,0,0.45);
+  transform-style:preserve-3d;
+  transition:transform 0.3s ease,box-shadow 0.3s ease;
+  cursor:pointer;
+}
+.card:hover{box-shadow:0 45px 100px rgba(0,0,0,0.55);}
+
+.emoji{font-size:100px;margin-bottom:50px;animation:sparkle 2s infinite alternate;text-shadow:0 0 20px #fff,0 0 40px #ffd700;cursor:pointer;}
+.emoji.small{font-size:60px;margin:30px;}
+@keyframes sparkle{0%{transform:scale(1) rotate(0deg);}50%{transform:scale(1.2) rotate(10deg);}100%{transform:scale(1) rotate(-10deg);}}
+
+/* Chữ gradient */
+h1{font-family:'Pacifico',cursive;font-size:50px;background:linear-gradient(90deg,#ff6ec7,#ffcc70,#6a5cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;text-shadow:0 2px 8px rgba(0,0,0,0.25);}
+p{font-size:24px;color:#fff;line-height:1.5;margin-bottom:20px;}
+
+/* Confetti, particles, emoji bay */
+.confetti,.particle,.emoji-fly{position:fixed;z-index:5;pointer-events:none;}
+.confetti{width:8px;height:8px;border-radius:50%;opacity:0.9;animation:confettiFall linear infinite;}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotateX(0deg) rotateY(0deg);opacity:1;}100%{transform:translateY(100vh) rotateX(720deg) rotateY(720deg);opacity:0;}}
+.particle{width:4px;height:4px;background:white;border-radius:50%;opacity:0.7;animation:particleFall linear infinite;}
+@keyframes particleFall{0%{transform:translateY(-10px);opacity:0.7;}100%{transform:translateY(100vh);opacity:0;}}
+.emoji-fly{font-size:40px;pointer-events:none;animation:fly 5s linear infinite;}
+@keyframes fly{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
+
+/* Ảnh hai bên 🎀 */
+.side-images {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 20px;
+}
+.side-images img {
+  width: 120px;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+.side-images img:hover { transform: scale(1.1) rotate(-3deg); }
+
+/* Lightbox zoom ảnh */
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(255,255,255,0.3);
+  animation: zoomIn 0.3s ease;
+}
+@keyframes zoomIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Canvas pháo hoa */
+canvas#fireworks {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+
+<!-- Layer 1 -->
+<div class="layer" id="layer1">
+  <div class="card">
+    <div class="emoji"><h1>Đố bạn biết trong này có gì?</h1></div>
+    <div class="emoji" id="gift1" style="color:#ff6b6b;">🎁</div>
+  </div>
+</div>
+
+<!-- Layer 2 -->
+<div class="layer hidden" id="layer2" style="background:url('background.jpg') no-repeat center center;background-size:cover;backdrop-filter:blur(5px);">
+  <div class="card" id="card2">
+    <div class="emoji">🎓✨</div>
+    <div class="emoji"><h1 style="font-size:50px;">Chúc mừng bạn Thư tốt nghiệp!</h1></div>
+    <h1 style="font-size:25px;">Hãy tự tin theo đuổi ước mơ và đừng ngừng cố gắng nhé.</h1>
+    <div class="side-images">
+      <img src="3823068b-3c5a-4d69-956d-67f8ca57f48e.jpg" alt="Ảnh trái" onclick="openLightbox(this)">
+      <div class="emoji small" id="gift2" style="color:#6a5cff;">🎀</div>
+      <img src="73d1a2c8-753a-4c28-b7b1-0854711129b6.jpg" alt="Ảnh phải" onclick="openLightbox(this)">
+    </div>
+  </div>
+</div>
+
+<!-- Layer 3 -->
+<div class="layer hidden" id="layer3">
+  <div class="card">
+    <div class="emoji" style="font-size:120px; margin-bottom:50px;">🥳🎉</div>
+    <div class="emoji"><h1>Ăn mừng điiiii</h1></div>
+    <div class="emoji" style="font-size:50px; margin-bottom:50px;">😆😆😆</div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <img id="lightbox-img" src="">
+</div>
+
+<!-- Canvas pháo hoa -->
+<canvas id="fireworks"></canvas>
+
+<script>
+// Layer switch
+document.getElementById('gift1').addEventListener('click',()=>{ goLayer(2); });
+function goLayer(n){
+  document.querySelectorAll('.layer').forEach(l=>l.classList.add('hidden'));
+  document.getElementById('layer'+n).classList.remove('hidden');
+  if(n===3) launchFireworks();
+}
+
+// Emoji tilt animation
+document.querySelectorAll('.emoji').forEach(e=>{
+  e.animate([{transform:'rotate(0deg) scale(1)'},{transform:'rotate(20deg) scale(1.2)'},{transform:'rotate(-20deg) scale(1.2)'},{transform:'rotate(0deg) scale(1)'}],{
+    duration:3000,iterations:Infinity
+  });
+});
+
+// Confetti / particles
+const colors=['#f94144','#f3722c','#f9c74f','#90be6d','#43aa8b','#577590','#ff6b6b','#ffd93d','#6a5cff','#ff6ec7'];
+function spawnConfetti(count=10){
+  for(let i=0;i<count;i++){
+    const c=document.createElement('div'); 
+    c.classList.add('confetti'); 
+    c.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)]; 
+    c.style.top='-10px'; 
+    c.style.left=Math.random()*100+'vw'; 
+    c.style.width=c.style.height=(5+Math.random()*10)+'px'; 
+    c.style.animationDuration=(3+Math.random()*5)+'s'; 
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),10000);
+  }
+}
+function spawnParticles(count=6){
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div'); 
+    p.classList.add('particle'); 
+    p.style.top='-5px'; 
+    p.style.left=Math.random()*100+'vw'; 
+    p.style.width=p.style.height=(2+Math.random()*4)+'px'; 
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration=(3+Math.random()*5)+'s'; 
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),8000);
+  }
+}
+function spawnFlyingEmoji(){
+  const e=document.createElement('div');
+  e.classList.add('emoji-fly');
+  e.textContent=['🎉','🎊','✨','🎈','🥳','💖','🔥'][Math.floor(Math.random()*7)];
+  e.style.left=Math.random()*90+'vw';
+  e.style.fontSize=(30+Math.random()*40)+'px';
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),5000);
+}
+
+// Gift2 explosion
+document.getElementById('gift2').addEventListener('click',()=>{
+  const gift = document.getElementById('gift2');
+  const rect = gift.getBoundingClientRect();
+  for(let i=0;i<50;i++){
+    const e = document.createElement('div');
+    e.className = 'emoji-fly';
+    e.textContent=['🎉','✨','🎊','🥳','🎈','💎'][Math.floor(Math.random()*6)];
+    e.style.left = rect.left + gift.offsetWidth/2 + Math.random()*100-50 +'px';
+    e.style.top = rect.top + gift.offsetHeight/2 + Math.random()*100-50 +'px';
+    e.style.fontSize = (20+Math.random()*40)+'px';
+    e.style.animationDuration = (2+Math.random()*2)+'s';
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(),3000);
+  }
+  goLayer(3);
+});
+
+// Intervals
+setInterval(()=>spawnConfetti(10),200);
+setInterval(()=>spawnParticles(6),200);
+setInterval(()=>{ if(!document.getElementById('layer2').classList.contains('hidden')) spawnFlyingEmoji(); },300);
+
+// Lightbox
+function openLightbox(img) {
+  document.getElementById('lightbox-img').src = img.src;
+  document.getElementById('lightbox').style.display = 'flex';
+}
+function closeLightbox(e) {
+  if (e.target.id === 'lightbox' || e.target.id === 'lightbox-img') {
+    document.getElementById('lightbox').style.display = 'none';
+  }
+}
+
+// Fireworks Canvas
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+let fireworks = [];
+resizeCanvas();
+window.onresize = resizeCanvas;
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+class Firework {
+  constructor(x,y){
+    this.x=x; this.y=y;
+    this.particles=[];
+    for(let i=0;i<80;i++){
+      const angle=Math.random()*2*Math.PI;
+      const speed=Math.random()*6+2;
+      this.particles.push({
+        x:this.x,y:this.y,
+        vx:Math.cos(angle)*speed,
+        vy:Math.sin(angle)*speed,
+        alpha:1
+      });
+    }
+  }
+  draw(){
+    this.particles.forEach(p=>{
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.vy+=0.05;
+      p.alpha-=0.015;
+      ctx.fillStyle=`rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},${p.alpha})`;
+      ctx.fillRect(p.x,p.y,3,3);
+    });
+    this.particles=this.particles.filter(p=>p.alpha>0);
+  }
+}
+function launchFireworks(){
+  setInterval(()=>{
+    fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2));
+  },400);
+  animate();
+}
+function animate(){
+  requestAnimationFrame(animate);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  fireworks.forEach(f=>f.draw());
+  fireworks=fireworks.filter(f=>f.particles.length>0);
+}
+</script>
+
+</body>
+</html>
